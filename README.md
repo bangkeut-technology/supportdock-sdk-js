@@ -88,6 +88,24 @@ await sdk.sendFeedback({
     subject?: string,        // auto-generated from type if omitted
     metadata?: Record<string, string>,
     source?: string,         // default: 'mobile-app'
+    images?: string[],       // up to 3 base64 data URLs (PNG/JPEG/WebP/GIF, each ≤ 2 MB)
+});
+```
+
+#### Attaching images
+
+```ts
+// Convert a local image to base64 (React Native example)
+import * as FileSystem from 'expo-file-system';
+
+const base64 = await FileSystem.readAsStringAsync(imageUri, {
+    encoding: FileSystem.EncodingType.Base64,
+});
+
+await sdk.sendFeedback({
+    type: 'bug',
+    message: 'UI is broken on this screen',
+    images: [`data:image/png;base64,${base64}`],
 });
 ```
 
@@ -117,7 +135,7 @@ try {
 } catch (err) {
     if (err instanceof SupportDockError) {
         console.log(err.message); // Error message from API
-        console.log(err.status);  // HTTP status code (401, 429, etc.)
+        console.log(err.status); // HTTP status code (401, 429, etc.)
     }
 }
 ```

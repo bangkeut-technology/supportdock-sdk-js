@@ -66,6 +66,20 @@ export class SupportDockClient {
     async sendFeedback(options: FeedbackOptions): Promise<FeedbackResult> {
         const metadata = { ...this.defaultMetadata, ...options.metadata };
 
+        if (options.images) {
+            if (options.images.length > 3) {
+                throw new SupportDockError('Maximum 3 images allowed', 400);
+            }
+            for (const img of options.images) {
+                if (!/^data:image\/(png|jpeg|webp|gif);base64,/.test(img)) {
+                    throw new SupportDockError(
+                        'Images must be base64-encoded data URLs (PNG, JPEG, WebP, or GIF)',
+                        400,
+                    );
+                }
+            }
+        }
+
         return this.request<FeedbackResult>('/api/feedback/remote', {
             method: 'POST',
             body: JSON.stringify({
@@ -76,6 +90,7 @@ export class SupportDockClient {
                 subject: options.subject,
                 metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
                 source: options.source ?? 'mobile-app',
+                images: options.images,
             }),
         });
     }

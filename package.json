@@ -1,15 +1,24 @@
 {
     "name": "@bangkeut-technology/supportdock-sdk",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "SupportDock SDK — submit feedback and manage FAQs from your React Native / Expo app",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "build": "tsc",
         "prepublishOnly": "npm run build"
     },
-    "keywords": ["supportdock", "feedback", "faq", "react-native", "expo", "sdk"],
+    "keywords": [
+        "supportdock",
+        "feedback",
+        "faq",
+        "react-native",
+        "expo",
+        "sdk"
+    ],
     "license": "MIT",
     "publishConfig": {
         "access": "public"

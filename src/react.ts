@@ -24,26 +24,23 @@ export function useSupportDock(config: SupportDockConfig) {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    const sendFeedback = useCallback(
-        async (options: FeedbackOptions): Promise<FeedbackResult> => {
-            setLoading(true);
-            setError(null);
-            setSuccess(false);
+    const sendFeedback = useCallback(async (options: FeedbackOptions): Promise<FeedbackResult> => {
+        setLoading(true);
+        setError(null);
+        setSuccess(false);
 
-            try {
-                const result = await clientRef.current!.sendFeedback(options);
-                setSuccess(true);
-                return result;
-            } catch (err) {
-                const message = err instanceof Error ? err.message : 'Failed to send feedback';
-                setError(message);
-                return { success: false, error: message };
-            } finally {
-                setLoading(false);
-            }
-        },
-        [],
-    );
+        try {
+            const result = await clientRef.current!.sendFeedback(options);
+            setSuccess(true);
+            return result;
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to send feedback';
+            setError(message);
+            return { success: false, error: message };
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     const reset = useCallback(() => {
         setError(null);

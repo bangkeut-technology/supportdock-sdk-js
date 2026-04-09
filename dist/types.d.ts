@@ -14,6 +14,8 @@ export interface FeedbackOptions {
     metadata?: Record<string, string>;
     /** Source identifier (defaults to 'mobile-app'). */
     source?: string;
+    /** Up to 3 base64-encoded data-URL images (PNG, JPEG, WebP, or GIF; each ≤ 2 MB). */
+    images?: string[];
 }
 export interface FeedbackResult {
     success: boolean;

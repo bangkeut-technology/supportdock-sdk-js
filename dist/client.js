@@ -45,7 +45,17 @@ class SupportDockClient {
      */
     async sendFeedback(options) {
         const metadata = { ...this.defaultMetadata, ...options.metadata };
-        return this.request('/api/feedback/remote', {
+        if (options.images) {
+            if (options.images.length > 3) {
+                throw new SupportDockError('Maximum 3 images allowed', 400);
+            }
+            for (const img of options.images) {
+                if (!/^data:image\/(png|jpeg|webp|gif);base64,/.test(img)) {
+                    throw new SupportDockError('Images must be base64-encoded data URLs (PNG, JPEG, WebP, or GIF)', 400);
+                }
+            }
+        }
+        return this.request('/api/v1/feedback/remote', {
             method: 'POST',
             body: JSON.stringify({
                 type: options.type ?? 'general',
@@ -55,31 +65,32 @@ class SupportDockClient {
                 subject: options.subject,
                 metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
                 source: options.source ?? 'mobile-app',
+                images: options.images,
             }),
         });
     }
     // ─── FAQ ─────────────────────────────────────────────────────
     /** List all FAQ entries for this app. */
     async listFAQs() {
-        return this.request('/api/faqs/remote');
+        return this.request('/api/v1/faqs/remote');
     }
     /** Create a new FAQ entry. */
     async createFAQ(options) {
-        return this.request('/api/faqs/remote', {
+        return this.request('/api/v1/faqs/remote', {
             method: 'POST',
             body: JSON.stringify(options),
         });
     }
     /** Update an existing FAQ entry. */
     async updateFAQ(faqId, options) {
-        return this.request(`/api/faqs/remote/${faqId}`, {
+        return this.request(`/api/v1/faqs/remote/${faqId}`, {
             method: 'PATCH',
             body: JSON.stringify(options),
         });
     }
     /** Delete a FAQ entry. */
     async deleteFAQ(faqId) {
-        return this.request(`/api/faqs/remote/${faqId}`, {
+        return this.request(`/api/v1/faqs/remote/${faqId}`, {
             method: 'DELETE',
         });
     }

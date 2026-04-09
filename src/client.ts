@@ -80,7 +80,7 @@ export class SupportDockClient {
             }
         }
 
-        return this.request<FeedbackResult>('/api/feedback/remote', {
+        return this.request<FeedbackResult>('/api/v1/feedback/remote', {
             method: 'POST',
             body: JSON.stringify({
                 type: options.type ?? 'general',
@@ -99,12 +99,12 @@ export class SupportDockClient {
 
     /** List all FAQ entries for this app. */
     async listFAQs(): Promise<FAQ[]> {
-        return this.request<FAQ[]>('/api/faqs/remote');
+        return this.request<FAQ[]>('/api/v1/faqs/remote');
     }
 
     /** Create a new FAQ entry. */
     async createFAQ(options: CreateFAQOptions): Promise<FAQ> {
-        return this.request<FAQ>('/api/faqs/remote', {
+        return this.request<FAQ>('/api/v1/faqs/remote', {
             method: 'POST',
             body: JSON.stringify(options),
         });
@@ -112,7 +112,7 @@ export class SupportDockClient {
 
     /** Update an existing FAQ entry. */
     async updateFAQ(faqId: string, options: UpdateFAQOptions): Promise<FAQ> {
-        return this.request<FAQ>(`/api/faqs/remote/${faqId}`, {
+        return this.request<FAQ>(`/api/v1/faqs/remote/${faqId}`, {
             method: 'PATCH',
             body: JSON.stringify(options),
         });
@@ -120,7 +120,7 @@ export class SupportDockClient {
 
     /** Delete a FAQ entry. */
     async deleteFAQ(faqId: string): Promise<{ success: boolean }> {
-        return this.request<{ success: boolean }>(`/api/faqs/remote/${faqId}`, {
+        return this.request<{ success: boolean }>(`/api/v1/faqs/remote/${faqId}`, {
             method: 'DELETE',
         });
     }

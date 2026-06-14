@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write
+  id-token: write # for --provenance attestation
 
 jobs:
   publish:
@@ -15,35 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Node 24 ships npm 11.x natively (Trusted Publishing/OIDC needs >= 11.5.1).
-      # registry-url configures the registry that npm does the OIDC exchange
-      # against — but it ALSO makes setup-node write an .npmrc line
-      # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` and inject a
-      # placeholder NODE_AUTH_TOKEN. npm then takes the classic-auth path with
-      # that placeholder and never tries OIDC (→ 404), or with an empty token
-      # (→ ENEEDAUTH). We strip that token line below so npm finds the registry
-      # configured AND no token, which is the only state where OIDC engages.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Prepare npm for OIDC (strip placeholder auth token)
-        run: |
-          node -v
-          npm -v
-          # Remove the _authToken line setup-node wrote to the userconfig npmrc.
-          if [ -n "$NPM_CONFIG_USERCONFIG" ] && [ -f "$NPM_CONFIG_USERCONFIG" ]; then
-            sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
-            echo "--- npmrc after strip ---"; cat "$NPM_CONFIG_USERCONFIG"
-          fi
-
       - run: npm install
       - run: npm run build
 
-      # NOTE: do NOT set NODE_AUTH_TOKEN on this step — any value (even empty)
-      # makes npm use classic auth instead of OIDC.
-      - run: npm publish --provenance --access public --loglevel verbose
+      # Token auth. We tried OIDC Trusted Publishing but the registry rejects the
+      # token exchange for this scoped package with "package not found" (npm bug
+      # npm/cli#8678 — scoped package with an existing published version). Switch
+      # back to OIDC by removing the env block once that's fixed upstream.
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

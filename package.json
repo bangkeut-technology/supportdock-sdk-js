@@ -2,6 +2,10 @@
     "name": "@bangkeut-technology/supportdock-sdk",
     "version": "0.4.0",
     "description": "SupportDock SDK — submit feedback and manage FAQs from your React Native / Expo app",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bangkeut-technology/supportdock-sdk-js.git"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [

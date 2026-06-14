@@ -15,24 +15,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # NOTE: deliberately no `registry-url` here. That input makes setup-node
-      # write an .npmrc with `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
-      # (and always-auth), which makes npm attempt token auth with an empty token
-      # and skip OIDC — failing the publish with a 404. Trusted Publishing needs
-      # npm to find NO auth token configured.
+      # Node 24 ships npm 11.x natively (Trusted Publishing/OIDC needs >= 11.5.1),
+      # so OIDC support doesn't hinge on the global upgrade below landing.
+      # registry-url is kept per npm's official example — it scopes the registry
+      # for the OIDC token exchange.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+          registry-url: https://registry.npmjs.org
 
-      # Trusted Publishing (OIDC auth) requires npm >= 11.5.1; the npm bundled
-      # with Node is older and can only sign provenance, not authenticate the
-      # publish.
       - run: npm install -g npm@latest
+
+      # Diagnostic: confirm npm is actually >= 11.5.1 at publish time.
+      - name: Tool versions
+        run: |
+          node -v
+          npm -v
 
       - run: npm install
       - run: npm run build
 
-      - run: npm publish --access public --provenance
+      - run: npm publish --provenance --access public
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

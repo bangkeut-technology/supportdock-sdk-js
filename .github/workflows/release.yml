@@ -15,16 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Node 24 ships npm 11.x natively (Trusted Publishing/OIDC needs >= 11.5.1),
-      # so OIDC support doesn't hinge on the global upgrade below landing.
-      # registry-url is kept per npm's official example — it scopes the registry
-      # for the OIDC token exchange.
+      # Node 24 ships npm 11.x natively (Trusted Publishing/OIDC needs >= 11.5.1).
+      #
+      # NO `registry-url`: setup-node's registry-url makes it inject a placeholder
+      # NODE_AUTH_TOKEN (XXXXX-XXXXX-XXXXX-XXXXX) into an .npmrc, so npm finds a
+      # (garbage) token and takes the classic-auth path instead of OIDC. Without
+      # it, npm 11.x finds no token and uses Trusted Publishing against the
+      # default registry (registry.npmjs.org).
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
-
-      - run: npm install -g npm@latest
 
       # Diagnostic: confirm npm is actually >= 11.5.1 at publish time.
       - name: Tool versions

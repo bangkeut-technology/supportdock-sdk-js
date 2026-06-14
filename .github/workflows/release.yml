@@ -15,14 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: deliberately no `registry-url` here. That input makes setup-node
+      # write an .npmrc with `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
+      # (and always-auth), which makes npm attempt token auth with an empty token
+      # and skip OIDC — failing the publish with a 404. Trusted Publishing needs
+      # npm to find NO auth token configured.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
       # Trusted Publishing (OIDC auth) requires npm >= 11.5.1; the npm bundled
       # with Node is older and can only sign provenance, not authenticate the
-      # publish — which fails the PUT with a 404.
+      # publish.
       - run: npm install -g npm@latest
 
       - run: npm install

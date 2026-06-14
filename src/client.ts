@@ -80,6 +80,20 @@ export class SupportDockClient {
             }
         }
 
+        if (options.attachments) {
+            if (options.attachments.length > 3) {
+                throw new SupportDockError('Maximum 3 PDF attachments allowed', 400);
+            }
+            for (const att of options.attachments) {
+                if (!att?.name) {
+                    throw new SupportDockError('Each attachment requires a name', 400);
+                }
+                if (!/^data:application\/pdf;base64,/.test(att.data ?? '')) {
+                    throw new SupportDockError('Attachments must be base64-encoded PDF data URLs', 400);
+                }
+            }
+        }
+
         return this.request<FeedbackResult>('/api/v1/feedback/remote', {
             method: 'POST',
             body: JSON.stringify({
@@ -91,6 +105,7 @@ export class SupportDockClient {
                 metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
                 source: options.source ?? 'mobile-app',
                 images: options.images,
+                attachments: options.attachments,
             }),
         });
     }

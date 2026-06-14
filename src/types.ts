@@ -1,5 +1,12 @@
 export type FeedbackType = 'bug' | 'feature' | 'question' | 'general';
 
+export interface FeedbackAttachment {
+    /** Display filename, e.g. "logs.pdf". */
+    name: string;
+    /** Base64-encoded PDF data URL (data:application/pdf;base64,…); ≤ 5 MB. */
+    data: string;
+}
+
 export interface FeedbackOptions {
     /** Feedback type. Defaults to 'general'. */
     type?: FeedbackType;
@@ -17,6 +24,8 @@ export interface FeedbackOptions {
     source?: string;
     /** Up to 3 base64-encoded data-URL images (PNG, JPEG, WebP, or GIF; each ≤ 2 MB). */
     images?: string[];
+    /** Up to 3 PDF files ({ name, data }); each ≤ 5 MB. */
+    attachments?: FeedbackAttachment[];
 }
 
 export interface FeedbackResult {

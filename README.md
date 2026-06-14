@@ -89,6 +89,7 @@ await sdk.sendFeedback({
     metadata?: Record<string, string>,
     source?: string,         // default: 'mobile-app'
     images?: string[],       // up to 3 base64 data URLs (PNG/JPEG/WebP/GIF, each ≤ 2 MB)
+    attachments?: { name: string; data: string }[],  // up to 3 PDFs (each ≤ 5 MB)
 });
 ```
 
@@ -106,6 +107,23 @@ await sdk.sendFeedback({
     type: 'bug',
     message: 'UI is broken on this screen',
     images: [`data:image/png;base64,${base64}`],
+});
+```
+
+#### Attaching PDFs
+
+```ts
+// Convert a local PDF to base64 (React Native example)
+import * as FileSystem from 'expo-file-system';
+
+const base64 = await FileSystem.readAsStringAsync(pdfUri, {
+    encoding: FileSystem.EncodingType.Base64,
+});
+
+await sdk.sendFeedback({
+    type: 'bug',
+    message: 'Steps to reproduce are in the attached report',
+    attachments: [{ name: 'report.pdf', data: `data:application/pdf;base64,${base64}` }],
 });
 ```
 

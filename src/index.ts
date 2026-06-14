@@ -3,6 +3,7 @@ export { useSupportDock } from './react';
 export type {
     SupportDockConfig,
     FeedbackOptions,
+    FeedbackAttachment,
     FeedbackResult,
     FeedbackType,
     FAQ,

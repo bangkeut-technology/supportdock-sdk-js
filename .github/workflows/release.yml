@@ -16,25 +16,33 @@ jobs:
       - uses: actions/checkout@v4
 
       # Node 24 ships npm 11.x natively (Trusted Publishing/OIDC needs >= 11.5.1).
-      #
-      # NO `registry-url`: setup-node's registry-url makes it inject a placeholder
-      # NODE_AUTH_TOKEN (XXXXX-XXXXX-XXXXX-XXXXX) into an .npmrc, so npm finds a
-      # (garbage) token and takes the classic-auth path instead of OIDC. Without
-      # it, npm 11.x finds no token and uses Trusted Publishing against the
-      # default registry (registry.npmjs.org).
+      # registry-url configures the registry that npm does the OIDC exchange
+      # against — but it ALSO makes setup-node write an .npmrc line
+      # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` and inject a
+      # placeholder NODE_AUTH_TOKEN. npm then takes the classic-auth path with
+      # that placeholder and never tries OIDC (→ 404), or with an empty token
+      # (→ ENEEDAUTH). We strip that token line below so npm finds the registry
+      # configured AND no token, which is the only state where OIDC engages.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          registry-url: https://registry.npmjs.org
 
-      # Diagnostic: confirm npm is actually >= 11.5.1 at publish time.
-      - name: Tool versions
+      - name: Prepare npm for OIDC (strip placeholder auth token)
         run: |
           node -v
           npm -v
+          # Remove the _authToken line setup-node wrote to the userconfig npmrc.
+          if [ -n "$NPM_CONFIG_USERCONFIG" ] && [ -f "$NPM_CONFIG_USERCONFIG" ]; then
+            sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
+            echo "--- npmrc after strip ---"; cat "$NPM_CONFIG_USERCONFIG"
+          fi
 
       - run: npm install
       - run: npm run build
 
+      # NOTE: do NOT set NODE_AUTH_TOKEN on this step — any value (even empty)
+      # makes npm use classic auth instead of OIDC.
       - run: npm publish --provenance --access public
 
       - name: Create GitHub Release

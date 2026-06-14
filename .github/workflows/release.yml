@@ -17,8 +17,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing (OIDC auth) requires npm >= 11.5.1; the npm bundled
+      # with Node is older and can only sign provenance, not authenticate the
+      # publish — which fails the PUT with a 404.
+      - run: npm install -g npm@latest
 
       - run: npm install
       - run: npm run build

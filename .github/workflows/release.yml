@@ -43,7 +43,7 @@ jobs:
 
       # NOTE: do NOT set NODE_AUTH_TOKEN on this step — any value (even empty)
       # makes npm use classic auth instead of OIDC.
-      - run: npm publish --provenance --access public
+      - run: npm publish --provenance --access public --loglevel verbose
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

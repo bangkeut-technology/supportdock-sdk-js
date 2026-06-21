@@ -55,6 +55,16 @@ class SupportDockClient {
                 }
             }
         }
+        if (options.videos) {
+            if (options.videos.length > 2) {
+                throw new SupportDockError('Maximum 2 videos allowed', 400);
+            }
+            for (const vid of options.videos) {
+                if (!/^data:video\/(mp4|webm|quicktime);base64,/.test(vid)) {
+                    throw new SupportDockError('Videos must be base64-encoded data URLs (MP4, WebM, or QuickTime)', 400);
+                }
+            }
+        }
         if (options.attachments) {
             if (options.attachments.length > 3) {
                 throw new SupportDockError('Maximum 3 PDF attachments allowed', 400);
@@ -79,6 +89,7 @@ class SupportDockClient {
                 metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
                 source: options.source ?? 'mobile-app',
                 images: options.images,
+                videos: options.videos,
                 attachments: options.attachments,
             }),
         });

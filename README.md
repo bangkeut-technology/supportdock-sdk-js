@@ -89,6 +89,7 @@ await sdk.sendFeedback({
     metadata?: Record<string, string>,
     source?: string,         // default: 'mobile-app'
     images?: string[],       // up to 3 base64 data URLs (PNG/JPEG/WebP/GIF, each ≤ 2 MB)
+    videos?: string[],       // up to 2 base64 data URLs (MP4/WebM/QuickTime, each ≤ 10 MB)
     attachments?: { name: string; data: string }[],  // up to 3 PDFs (each ≤ 5 MB)
 });
 ```
@@ -107,6 +108,23 @@ await sdk.sendFeedback({
     type: 'bug',
     message: 'UI is broken on this screen',
     images: [`data:image/png;base64,${base64}`],
+});
+```
+
+#### Attaching videos
+
+```ts
+// Convert a local video to base64 (React Native example)
+import * as FileSystem from 'expo-file-system';
+
+const base64 = await FileSystem.readAsStringAsync(videoUri, {
+    encoding: FileSystem.EncodingType.Base64,
+});
+
+await sdk.sendFeedback({
+    type: 'bug',
+    message: 'Screen recording of the crash attached',
+    videos: [`data:video/mp4;base64,${base64}`],
 });
 ```
 

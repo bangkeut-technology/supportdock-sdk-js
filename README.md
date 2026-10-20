@@ -176,6 +176,78 @@ try {
 }
 ```
 
+## Monitoring (opt-in)
+
+Errors, crashes and request performance, shown next to your feedback in SupportDock (app → **Monitoring**). Every feature is off until you turn it on, and the feedback API above is unchanged. It authenticates with the same API key.
+
+What never leaves your process: query strings, request and response bodies, and SQL values (`WHERE email = 'jane@…'` is sent as `WHERE email = ?`). Events are batched (every 10 s or 100 events), gzipped, and dropped rather than retried if SupportDock is unreachable. Monitoring never throws into your code.
+
+### NestJS
+
+Requires the Express adapter (the default). Install the SDK plus the OpenTelemetry packages it drives:
+
+```bash
+npm i @bangkeut-technology/supportdock-sdk @opentelemetry/sdk-node @opentelemetry/api @opentelemetry/core \
+  @opentelemetry/resources @opentelemetry/sdk-trace-base @opentelemetry/exporter-trace-otlp-http \
+  @opentelemetry/instrumentation-http @opentelemetry/instrumentation-express \
+  @opentelemetry/instrumentation-nestjs-core @opentelemetry/instrumentation-pg @opentelemetry/instrumentation-ioredis
+```
+
+OpenTelemetry must load before anything it instruments, so start it from its own file and import that file first:
+
+```ts
+// src/instrument.ts
+import { initNestMonitoring } from '@bangkeut-technology/supportdock-sdk/nestjs';
+
+initNestMonitoring({
+    projectKey: process.env.SUPPORTDOCK_KEY!, // your app's API key (sdk_…)
+    release: process.env.GIT_SHA, // optional; see "Releases" below
+    monitoring: { traces: true, errors: true, crashes: true, sampleRate: 0.2 },
+});
+```
+
+```ts
+// src/main.ts
+import './instrument'; // first line
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { SupportDockExceptionFilter } from '@bangkeut-technology/supportdock-sdk/nestjs';
+import { AppModule } from './app.module';
+
+const app = await NestFactory.create(AppModule);
+const { httpAdapter } = app.get(HttpAdapterHost);
+app.useGlobalFilters(new SupportDockExceptionFilter(httpAdapter)); // reports 5xx, then Nest responds as usual
+await app.listen(3000);
+```
+
+You get per-route latency (named by route template, e.g. `GET /users/:id`), error rates, slow Postgres (`pg`) and Redis (`ioredis`) queries, and grouped errors with stack traces.
+
+### Any Node app
+
+```ts
+import { SupportDock } from '@bangkeut-technology/supportdock-sdk/monitoring';
+
+SupportDock.init({ projectKey: process.env.SUPPORTDOCK_KEY!, monitoring: { errors: true, crashes: true } });
+
+try {
+    await chargeCard(order);
+} catch (err) {
+    SupportDock.captureException(err, { route: 'POST /orders' });
+    throw err;
+}
+```
+
+| Option | Default | |
+|---|---|---|
+| `monitoring.errors` | `false` | `captureException` and the Nest filter report errors |
+| `monitoring.crashes` | `false` | Uncaught exceptions and unhandled rejections are reported, then the process exits with code 1, as Node would |
+| `monitoring.traces` | `false` | Request and query timing (NestJS preset) |
+| `monitoring.sampleRate` | `1` | Share of traces kept (errors are never sampled) |
+| `release` | auto | `SUPPORTDOCK_RELEASE`, then `GIT_SHA` / `SOURCE_VERSION` / `VERCEL_GIT_COMMIT_SHA` / `RAILWAY_GIT_COMMIT_SHA` / `GITHUB_SHA`, then `npm_package_version` |
+| `ingestUrl` | `https://supportdock.io/ingest` | |
+| `debug` | `false` | Log delivery failures to the console |
+
+**Releases** are what let SupportDock say "this error started in `a1b2c3d`". Set one per deploy.
+
 ## Get Your API Key
 
 1. Go to your app dashboard on [supportdock.io](https://supportdock.io)

@@ -1,7 +1,7 @@
 {
     "name": "@bangkeut-technology/supportdock-sdk",
-    "version": "0.5.0",
-    "description": "SupportDock SDK — submit feedback and manage FAQs from your React Native / Expo app",
+    "version": "0.6.0",
+    "description": "SupportDock SDK \u2014 feedback, FAQs and opt-in monitoring (errors, crashes, NestJS tracing) for your apps",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/bangkeut-technology/supportdock-sdk-js.git"
@@ -21,22 +21,119 @@
         "faq",
         "react-native",
         "expo",
-        "sdk"
+        "sdk",
+        "monitoring",
+        "opentelemetry",
+        "nestjs",
+        "error-tracking"
     ],
     "license": "MIT",
     "publishConfig": {
         "access": "public"
     },
     "peerDependencies": {
-        "react": ">=18.0.0"
+        "react": ">=18.0.0",
+        "@opentelemetry/api": "^1.9.0",
+        "@opentelemetry/core": "^2.0.0",
+        "@opentelemetry/exporter-trace-otlp-http": ">=0.200.0",
+        "@opentelemetry/instrumentation-express": ">=0.50.0",
+        "@opentelemetry/instrumentation-http": ">=0.200.0",
+        "@opentelemetry/instrumentation-ioredis": ">=0.50.0",
+        "@opentelemetry/instrumentation-nestjs-core": ">=0.50.0",
+        "@opentelemetry/instrumentation-pg": ">=0.50.0",
+        "@opentelemetry/resources": "^2.0.0",
+        "@opentelemetry/sdk-node": ">=0.200.0",
+        "@opentelemetry/sdk-trace-base": "^2.0.0",
+        "@nestjs/common": ">=10.0.0",
+        "@nestjs/core": ">=10.0.0"
     },
     "peerDependenciesMeta": {
         "react": {
             "optional": true
+        },
+        "@opentelemetry/api": {
+            "optional": true
+        },
+        "@opentelemetry/core": {
+            "optional": true
+        },
+        "@opentelemetry/exporter-trace-otlp-http": {
+            "optional": true
+        },
+        "@opentelemetry/instrumentation-express": {
+            "optional": true
+        },
+        "@opentelemetry/instrumentation-http": {
+            "optional": true
+        },
+        "@opentelemetry/instrumentation-ioredis": {
+            "optional": true
+        },
+        "@opentelemetry/instrumentation-nestjs-core": {
+            "optional": true
+        },
+        "@opentelemetry/instrumentation-pg": {
+            "optional": true
+        },
+        "@opentelemetry/resources": {
+            "optional": true
+        },
+        "@opentelemetry/sdk-node": {
+            "optional": true
+        },
+        "@opentelemetry/sdk-trace-base": {
+            "optional": true
+        },
+        "@nestjs/common": {
+            "optional": true
+        },
+        "@nestjs/core": {
+            "optional": true
         }
     },
     "devDependencies": {
+        "@nestjs/common": "^12.2.0",
+        "@nestjs/core": "^12.2.0",
+        "@opentelemetry/api": "^1.9.1",
+        "@opentelemetry/core": "^2.12.0",
+        "@opentelemetry/exporter-trace-otlp-http": "^0.223.0",
+        "@opentelemetry/instrumentation-express": "^0.71.1",
+        "@opentelemetry/instrumentation-http": "^0.223.0",
+        "@opentelemetry/instrumentation-ioredis": "^0.71.0",
+        "@opentelemetry/instrumentation-nestjs-core": "^0.70.0",
+        "@opentelemetry/instrumentation-pg": "^0.76.0",
+        "@opentelemetry/resources": "^2.12.0",
+        "@opentelemetry/sdk-node": "^0.223.0",
+        "@opentelemetry/sdk-trace-base": "^2.12.0",
+        "@types/node": "^20.0.0",
         "@types/react": "^19.0.0",
+        "reflect-metadata": "^0.2.2",
+        "rxjs": "^7.8.2",
         "typescript": "^5.0.0"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./monitoring": {
+            "types": "./dist/monitoring/index.d.ts",
+            "default": "./dist/monitoring/index.js"
+        },
+        "./nestjs": {
+            "types": "./dist/nestjs/index.d.ts",
+            "default": "./dist/nestjs/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "typesVersions": {
+        "*": {
+            "monitoring": [
+                "dist/monitoring/index.d.ts"
+            ],
+            "nestjs": [
+                "dist/nestjs/index.d.ts"
+            ]
+        }
     }
 }

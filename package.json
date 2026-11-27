@@ -1,7 +1,7 @@
 {
     "name": "@bangkeut-technology/supportdock-sdk",
-    "version": "0.6.0",
-    "description": "SupportDock SDK \u2014 feedback, FAQs and opt-in monitoring (errors, crashes, NestJS tracing) for your apps",
+    "version": "0.7.0",
+    "description": "SupportDock SDK — feedback, FAQs and opt-in monitoring (errors, crashes, NestJS tracing) for your apps",
     "author": "bill&go (https://billandgo.app)",
     "homepage": "https://supportdock.io",
     "repository": {

@@ -9,7 +9,11 @@ export interface MonitoringFeatures {
     errors?: boolean;
     /** Uncaught exceptions and unhandled rejections; reported before the process exits. */
     crashes?: boolean;
-    /** Web Vitals / app start (browser and Expo; not used by the NestJS preset). */
+    /**
+     * @deprecated Never implemented, and ignored. Website Web Vitals come from
+     * the `<script src="https://supportdock.io/monitor/rum.js" data-key="sdk_…">`
+     * snippet instead. Kept only so existing configs still type-check.
+     */
     vitals?: boolean;
     /** Share of traces kept, 0–1. Errors are never sampled. Defaults to 1. */
     sampleRate?: number;

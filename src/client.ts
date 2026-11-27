@@ -39,13 +39,25 @@ export class SupportDockClient {
                 },
             });
 
-            const data = await res.json();
+            // A proxy or gateway error (502, 504) answers HTML, not JSON: read
+            // the body as text so it still surfaces as a SupportDockError.
+            const text = await res.text();
+            let data: unknown = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch {
+                data = null;
+            }
 
             if (!res.ok) {
+                const error = (data as { error?: unknown } | null)?.error;
                 throw new SupportDockError(
-                    (data as { error?: string }).error ?? `Request failed with status ${res.status}`,
+                    typeof error === 'string' ? error : `Request failed with status ${res.status}`,
                     res.status,
                 );
+            }
+            if (data === null) {
+                throw new SupportDockError(`Unexpected response from SupportDock (status ${res.status})`, res.status);
             }
 
             return data as T;
@@ -132,24 +144,42 @@ export class SupportDockClient {
         return this.request<FAQ[]>('/api/v1/faqs/remote');
     }
 
-    /** Create a new FAQ entry. */
+    /**
+     * FAQ writes take the app's secret key (sk_…). The SDK key ships inside
+     * apps, so the server refuses it with a 403; fail the same way before the
+     * request, with a message that says which key to use.
+     */
+    private requireSecretKey(method: string): void {
+        if (this.apiKey.startsWith('sdk_')) {
+            throw new SupportDockError(
+                `${method} needs your app's secret key (sk_…), not the SDK key (sdk_…). ` +
+                    'Use it from a server or script only; never ship it inside an app.',
+                403,
+            );
+        }
+    }
+
+    /** Create a new FAQ entry. Needs the secret key (sk_…). */
     async createFAQ(options: CreateFAQOptions): Promise<FAQ> {
+        this.requireSecretKey('createFAQ');
         return this.request<FAQ>('/api/v1/faqs/remote', {
             method: 'POST',
             body: JSON.stringify(options),
         });
     }
 
-    /** Update an existing FAQ entry. */
+    /** Update an existing FAQ entry. Needs the secret key (sk_…). */
     async updateFAQ(faqId: string, options: UpdateFAQOptions): Promise<FAQ> {
+        this.requireSecretKey('updateFAQ');
         return this.request<FAQ>(`/api/v1/faqs/remote/${faqId}`, {
             method: 'PATCH',
             body: JSON.stringify(options),
         });
     }
 
-    /** Delete a FAQ entry. */
+    /** Delete a FAQ entry. Needs the secret key (sk_…). */
     async deleteFAQ(faqId: string): Promise<{ success: boolean }> {
+        this.requireSecretKey('deleteFAQ');
         return this.request<{ success: boolean }>(`/api/v1/faqs/remote/${faqId}`, {
             method: 'DELETE',
         });

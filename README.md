@@ -2,6 +2,8 @@
 
 Official SDK for [SupportDock](https://supportdock.io) — submit feedback and manage FAQs from your React Native / Expo app.
 
+SupportDock is a product of [bill&go](https://billandgo.app).
+
 ## Install
 
 ```bash
@@ -258,4 +260,4 @@ Requires a Pro plan.
 
 ## License
 
-MIT
+MIT © SupportDock by [bill&go](https://billandgo.app)

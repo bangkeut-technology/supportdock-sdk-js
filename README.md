@@ -170,7 +170,7 @@ type FAQ = {
 };
 ```
 
-The client also has write methods (`createFAQ`, `updateFAQ`, `deleteFAQ`). These call `/api/v1/faqs/remote` and need the app's **secret key** (`sk_…`, shown once on the app dashboard). With an `sdk_` key the server answers `403`. Use the secret key only from your server or a script. Never put it in an app bundle, where anyone can extract it.
+The client also has write methods (`createFAQ`, `updateFAQ`, `deleteFAQ`). These call `/api/v1/faqs/remote` and need the app's **secret key** (`sk_…`, shown once on the app dashboard). With an `sdk_` key they throw a `SupportDockError` with status `403` before any request is made. Use the secret key only from your server or a script. Never put it in an app bundle, where anyone can extract it.
 
 ```ts
 // Server-side or script only — never in a client app
@@ -204,7 +204,7 @@ try {
 }
 ```
 
-`SupportDockError` covers HTTP errors and local validation (status `400`). A `429` means either the monthly feedback limit is reached (see [Get Your API Key](#get-your-api-key)) or the key sent more than 5 submissions in 15 minutes.
+`SupportDockError` covers HTTP errors (including a non-JSON error page from a proxy, such as a `502`), local validation (status `400`) and an `sdk_` key on a FAQ write (status `403`). A `429` means either the monthly feedback limit is reached (see [Get Your API Key](#get-your-api-key)) or the key sent more than 5 submissions in 15 minutes.
 
 ### `useSupportDock`
 
@@ -239,6 +239,8 @@ npm i @bangkeut-technology/supportdock-sdk @opentelemetry/sdk-node @opentelemetr
   @opentelemetry/instrumentation-http @opentelemetry/instrumentation-express \
   @opentelemetry/instrumentation-nestjs-core @opentelemetry/instrumentation-pg @opentelemetry/instrumentation-ioredis
 ```
+
+On `SIGTERM` and `SIGINT` the preset flushes buffered traces and errors (up to 2 s), then lets the signal stop the process. If your app has its own listener, for example Nest's `app.enableShutdownHooks()`, that listener owns the exit.
 
 OpenTelemetry must load before anything it instruments, so start it from its own file and import that file first:
 

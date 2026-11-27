@@ -70,8 +70,14 @@ function initNestMonitoring(options) {
         ],
     });
     sdk.start();
-    // Flush what is buffered when the platform stops the process.
-    const stop = () => void Promise.allSettled([sdk?.shutdown(), client_1.SupportDock.flush(2000)]);
+    // Flush what is buffered when the platform stops the process. A listener on
+    // a signal replaces Node's default "exit", so once the flush settles, raise
+    // the signal again — unless the app has its own listener (Nest's
+    // enableShutdownHooks), which then owns the exit.
+    const stop = (signal) => void Promise.allSettled([sdk?.shutdown(), client_1.SupportDock.flush(2000)]).finally(() => {
+        if (process.listenerCount(signal) === 0)
+            process.kill(process.pid, signal);
+    });
     process.once('SIGTERM', stop);
     process.once('SIGINT', stop);
 }
